@@ -29,27 +29,38 @@ public class PreOrderService {
         this.productRepository = productRepository;
     }
 
-    @Transactional // Ensures database integrity. All operations succeed, or all roll back.
+    @Transactional
     public PreOrder createPreOrder(PreOrderRequest request) {
-        // 1. Fetch the customer from database
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + request.getCustomerId()));
 
-        // 2. Fetch all requested products by their IDs
         List<Product> products = productRepository.findAllById(request.getProductIds());
         if (products.isEmpty()) {
             throw new RuntimeException("No valid products selected for pre-order.");
         }
 
-        // 3. Assemble the PreOrder entity
+        // --- NEW BUSINESS LOGIC: Inventory Management ---
+        for (Product product : products) {
+            if (product.getAvailableQuantity() <= 0) {
+                throw new RuntimeException("Product '" + product.getName() + "' is out of stock.");
+            }
+            // Decrement the quantity.
+            // Hibernate's 'Dirty Checking' will auto-save this to the database!
+            product.setAvailableQuantity(product.getAvailableQuantity() - 1);
+        }
+        // ------------------------------------------------
+
         PreOrder preOrder = new PreOrder();
         preOrder.setCustomer(customer);
         preOrder.setProducts(products);
         preOrder.setOrderDate(LocalDateTime.now());
         preOrder.setStatus("PENDING");
 
-        // 4. Save to the database
         return preOrderRepository.save(preOrder);
+    }
+    public PreOrder getOrderById(Long id) {
+        return preOrderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + id));
     }
 
     public List<PreOrder> getAllOrders() {

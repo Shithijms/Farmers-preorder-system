@@ -21,7 +21,10 @@ public class PreOrderController {
     public PreOrder placeOrder(@RequestBody PreOrderRequest request) {
         return preOrderService.createPreOrder(request);
     }
-
+    @GetMapping("/{id}")
+    public PreOrder getOrderById(@PathVariable Long id) {
+        return preOrderService.getOrderById(id);
+    }
     @GetMapping
     public List<PreOrder> getAllOrders() {
         return preOrderService.getAllOrders();

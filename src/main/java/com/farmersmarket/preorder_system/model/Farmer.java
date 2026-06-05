@@ -1,17 +1,14 @@
 package com.farmersmarket.preorder_system.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // 1. Add this import
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
-/**
- * @author Shithij
- */
-
-@Entity // Tells JPA to make a table out of this class
-@Data // Lombok: auto-generates getters, setters, toString, etc.
-@NoArgsConstructor // Lombok: auto-generates an empty constructor required by JPA
+@Entity
+@Data
+@NoArgsConstructor
 public class Farmer {
 
     @Id
@@ -22,7 +19,7 @@ public class Farmer {
     private String farmName;
     private String contactEmail;
 
-    // A Farmer can have many Products
     @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL)
+    @JsonIgnore // 2. Add this annotation to break the infinite loop!
     private List<Product> products;
 }

@@ -6,167 +6,467 @@
     <title>Farmers' Market Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; padding-top: 30px; }
-        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.05); border: none; margin-bottom: 20px; }
-        .out-of-stock { opacity: 0.6; }
+        body { background-color: #f4f7f6; padding-top: 20px; }
+        .card { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: none; margin-bottom: 20px; }
+        .table th, .table td { vertical-align: middle; }
+        .section-header { border-bottom: 2px solid #198754; padding-bottom: 8px; margin-bottom: 18px; }
+        .badge-status { font-size: 0.85rem; }
+        .form-section { min-height: 260px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1 class="text-center mb-4 text-success fw-bold">🌾 Farmers' Market Pre-Order</h1>
-    <p class="text-center text-muted mb-5">Live connection to Spring Boot API</p>
+    <div class="text-center mb-4">
+        <h1 class="text-success fw-bold">🌾 Farmers' Market Pre-Order System</h1>
+        <p class="text-muted">Manage farmers, customers, products, and orders from a single page.</p>
+    </div>
 
-    <div class="row">
-        <div class="col-md-7">
-            <h4 class="mb-3">🛒 Live Marketplace</h4>
-            <div id="products-list">
-                <div class="spinner-border text-success" role="status">
-                    <span class="visually-hidden">Loading...</span>
+    <div class="row gy-4">
+        <div class="col-lg-4">
+            <div class="card p-4 form-section">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Farmers</h5>
+                    <span class="badge bg-success">API</span>
                 </div>
+                <div id="farmers-list" class="mb-4"></div>
+                <form id="farmer-form" onsubmit="createFarmer(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Farmer Name</label>
+                        <input type="text" id="farmerName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Farm Name</label>
+                        <input type="text" id="farmName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Email</label>
+                        <input type="email" id="farmerEmail" class="form-control" required>
+                    </div>
+                    <button class="btn btn-success w-100">Add Farmer</button>
+                </form>
             </div>
         </div>
 
-        <div class="col-md-5">
-
-            <div class="card p-4 border-top border-success border-4">
-                <h4 class="mb-3">Place Pre-Order</h4>
-                <form id="order-form">
-                    <div class="mb-3">
-                        <label class="form-label text-muted small text-uppercase">Customer ID</label>
-                        <input type="number" class="form-control" id="customerId" placeholder="Enter your ID (e.g., 1)" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label text-muted small text-uppercase">Product ID</label>
-                        <input type="number" class="form-control" id="productId" placeholder="Enter Product ID" required>
-                    </div>
-                    <button type="button" class="btn btn-success w-100 fw-bold" onclick="submitOrder()">Submit Order</button>
-                </form>
-                <div id="order-status" class="alert mt-3 d-none small" role="alert"></div>
-            </div>
-
-            <div class="card p-4 border-top border-primary border-4 mt-4">
-                <h4 class="mb-3">Track Order</h4>
-                <div class="input-group mb-3">
-                    <input type="number" id="trackOrderId" class="form-control" placeholder="Order ID">
-                    <button class="btn btn-primary" onclick="trackOrder()">Track</button>
+        <div class="col-lg-4">
+            <div class="card p-4 form-section">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Customers</h5>
+                    <span class="badge bg-primary">API</span>
                 </div>
-                <div id="track-result" class="p-3 bg-light rounded d-none small"></div>
+                <div id="customers-list" class="mb-4"></div>
+                <form id="customer-form" onsubmit="createCustomer(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" id="customerName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="customerEmail" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" id="customerPhone" class="form-control" required>
+                    </div>
+                    <button class="btn btn-primary w-100">Add Customer</button>
+                </form>
             </div>
+        </div>
 
+        <div class="col-lg-4">
+            <div class="card p-4 form-section">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Products</h5>
+                    <span class="badge bg-warning text-dark">API</span>
+                </div>
+                <div id="product-summary" class="mb-3"></div>
+                <div id="products-list" class="mb-4"></div>
+                <form id="product-form" onsubmit="createProduct(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" id="productDescription" class="form-control" required>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">Price</label>
+                            <input type="number" step="0.01" id="productPrice" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" id="productQuantity" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Farmer</label>
+                        <select id="productFarmer" class="form-select" required></select>
+                    </div>
+                    <button class="btn btn-warning w-100">Add Product</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card p-4">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order Builder</h5>
+                    <span class="badge bg-info text-dark">Multi-item</span>
+                </div>
+                <form id="order-form" onsubmit="submitOrder(event)">
+                    <div class="row gy-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Customer</label>
+                            <select id="orderCustomer" class="form-select" required></select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Order Notes</label>
+                            <input type="text" id="orderNote" class="form-control" placeholder="Optional note for the farm">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h6>Choose products</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Farmer</th>
+                                    <th>Price</th>
+                                    <th>Available</th>
+                                    <th>Qty</th>
+                                </tr>
+                                </thead>
+                                <tbody id="order-products-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div id="order-form-feedback" class="text-danger"></div>
+                        <button class="btn btn-success">Place Order</button>
+                    </div>
+                </form>
+                <div id="order-success" class="alert alert-success mt-3 d-none"></div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card p-4">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order History</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="loadOrders()">Refresh</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="orders-list"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURATION ---
     const API_BASE_URL = 'http://localhost:8081/api';
+    let allProducts = [];
+    let allCustomers = [];
+    let allFarmers = [];
 
-    // --- 1. LOAD PRODUCTS ---
-    async function loadProducts() {
+    async function loadAllData() {
         try {
-            const response = await fetch(`${API_BASE_URL}/products`);
-            const products = await response.json();
+            await loadFarmers();
+            await loadCustomers();
+            await loadProducts();
+            await loadOrders();
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+        }
+        renderOrderProductsTable();
+    }
 
-            const container = document.getElementById('products-list');
-            container.innerHTML = '';
+    async function loadFarmers() {
+        const response = await fetch(`${API_BASE_URL}/farmers`);
+        allFarmers = response.ok ? await response.json() : [];
+        const farmersList = document.getElementById('farmers-list');
+        farmersList.innerHTML = allFarmers.map(f => `
+            <div class="small mb-2">
+                <strong>${f.name}</strong> — ${f.farmName}<br>
+                <span class="text-muted">${f.contactEmail}</span>
+            </div>
+        `).join('') || '<p class="text-muted">No farmers available yet.</p>';
+        populateProductFarmerDropdown();
+    }
 
-            products.forEach(product => {
-                const isOutOfStock = product.availableQuantity <= 0;
-                const stockBadge = isOutOfStock
-                    ? `<span class="badge bg-danger">Out of Stock</span>`
-                    : `<span class="badge bg-success">${product.availableQuantity} left</span>`;
+    async function loadCustomers() {
+        const response = await fetch(`${API_BASE_URL}/customers`);
+        allCustomers = response.ok ? await response.json() : [];
+        const customersList = document.getElementById('customers-list');
+        customersList.innerHTML = allCustomers.map(c => `
+            <div class="small mb-2">
+                <strong>${c.name}</strong><br>
+                <span class="text-muted">${c.email} · ${c.phoneNumber}</span>
+            </div>
+        `).join('') || '<p class="text-muted">No customers available yet.</p>';
+        populateOrderCustomerDropdown();
+    }
 
-                // Safely check if a farmer is attached to avoid null errors
-                const farmName = product.farmer ? product.farmer.farmName : "Independent Farmer";
+    async function loadProducts() {
+        const response = await fetch(`${API_BASE_URL}/products`);
+        allProducts = response.ok ? await response.json() : [];
+        const productSummary = document.getElementById('product-summary');
+        productSummary.innerHTML = `
+            <div class="small text-muted">Available products: <strong>${allProducts.length}</strong></div>
+            <div class="small text-muted">Total inventory: <strong>${allProducts.reduce((sum, p) => sum + (p.availableQuantity || 0), 0)}</strong></div>
+        `;
+        renderProductCards();
+        renderOrderProductsTable();
+    }
 
-                container.innerHTML += `
-                    <div class="card ${isOutOfStock ? 'out-of-stock' : ''}">
+    async function loadOrders() {
+        const response = await fetch(`${API_BASE_URL}/orders`);
+        const orders = response.ok ? await response.json() : [];
+        const ordersList = document.getElementById('orders-list');
+        ordersList.innerHTML = orders.map(order => {
+            const orderDate = new Date(order.orderDate).toLocaleString();
+            const total = order.totalAmount != null ? order.totalAmount.toFixed(2) : '-';
+            const statusClass = {
+                PENDING: 'bg-warning text-dark',
+                CONFIRMED: 'bg-info text-dark',
+                COMPLETED: 'bg-success',
+                CANCELLED: 'bg-danger'
+            }[order.status] || 'bg-secondary';
+
+            let actions = '';
+            if (order.status === 'PENDING') {
+                actions = `<button class="btn btn-sm btn-info me-1" onclick="changeStatus(${order.id}, 'CONFIRMED')">Confirm</button>` +
+                          `<button class="btn btn-sm btn-danger" onclick="changeStatus(${order.id}, 'CANCELLED')">Cancel</button>`;
+            } else if (order.status === 'CONFIRMED') {
+                actions = `<button class="btn btn-sm btn-success me-1" onclick="changeStatus(${order.id}, 'COMPLETED')">Complete</button>` +
+                          `<button class="btn btn-sm btn-danger" onclick="changeStatus(${order.id}, 'CANCELLED')">Cancel</button>`;
+            }
+
+            return `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.customer?.name || 'Unknown'}</td>
+                    <td>${orderDate}</td>
+                    <td>$${total}</td>
+                    <td><span class="badge ${statusClass} badge-status">${order.status}</span></td>
+                    <td>${order.orderProducts?.length || 0}</td>
+                    <td>${actions}</td>
+                </tr>
+            `;
+        }).join('') || '<tr><td colspan="7" class="text-muted text-center">No orders yet.</td></tr>';
+    }
+
+    function populateProductFarmerDropdown() {
+        const select = document.getElementById('productFarmer');
+        if (!select) return;
+        if (!allFarmers || allFarmers.length === 0) {
+            select.innerHTML = '<option value="" selected disabled>No farmers available</option>';
+            select.disabled = true;
+            return;
+        }
+        select.innerHTML = '<option value="" selected disabled hidden>Select a farmer</option>' +
+            allFarmers.map(f => `<option value="${f.id}">${f.farmName} (${f.name})</option>`).join('');
+        select.disabled = false;
+        select.selectedIndex = 0;
+    }
+
+    function populateOrderCustomerDropdown() {
+        const select = document.getElementById('orderCustomer');
+        if (!select) return;
+        if (!allCustomers || allCustomers.length === 0) {
+            select.innerHTML = '<option value="" selected disabled>No customers yet</option>';
+            select.disabled = true;
+            return;
+        }
+        select.innerHTML = '<option value="" selected disabled hidden>Select a customer</option>' +
+            allCustomers.map(c => `<option value="${c.id}">${c.name} (${c.email})</option>`).join('');
+        select.disabled = false;
+        select.selectedIndex = 0;
+    }
+
+    function renderProductCards() {
+        const productsList = document.getElementById('products-list');
+        if (!productsList) return;
+        productsList.innerHTML = allProducts.length === 0
+            ? '<p class="text-muted">No products available.</p>'
+            : allProducts.map(product => {
+                const available = product.availableQuantity || 0;
+                const farmerName = product.farmer?.farmName || 'Independent Farmer';
+                return `
+                    <div class="card mb-3 ${available === 0 ? 'opacity-75' : ''}">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="card-title mb-1">${product.name} <small class="text-muted">(ID: ${product.id})</small></h5>
-                                ${stockBadge}
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="card-title mb-1">${product.name}</h5>
+                                    <small class="text-muted">ID: ${product.id} · ${farmerName}</small>
+                                </div>
+                                <span class="badge ${available === 0 ? 'bg-danger' : 'bg-success'}">${available} left</span>
                             </div>
-                            <p class="text-muted small mb-2">👨‍🌾 Grown by: <strong>${farmName}</strong></p>
-                            <p class="card-text mb-2">${product.description}</p>
-                            <h5 class="text-success fw-bold mb-0">$${product.price}</h5>
+                            <p class="small mb-1">${product.description}</p>
+                            <p class="fw-bold mb-0">$${product.price?.toFixed(2) || '0.00'}</p>
                         </div>
                     </div>
                 `;
-            });
-        } catch (error) {
-            document.getElementById('products-list').innerHTML = `<p class="text-danger">Failed to connect to backend API.</p>`;
-        }
+            }).join('');
     }
 
-    // --- 2. SUBMIT ORDER ---
-    async function submitOrder() {
-        const customerId = document.getElementById('customerId').value;
-        const productId = document.getElementById('productId').value;
-        const statusBox = document.getElementById('order-status');
+    function renderOrderProductsTable() {
+        const tbody = document.getElementById('order-products-table');
+        tbody.innerHTML = allProducts.length === 0
+            ? '<tr><td colspan="5" class="text-muted text-center">Load products to build an order.</td></tr>'
+            : allProducts.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.farmer?.farmName || 'Unknown'}</td>
+                    <td>$${p.price?.toFixed(2) || '0.00'}</td>
+                    <td>${p.availableQuantity}</td>
+                    <td>
+                        <input type="number" min="0" value="0" class="form-control form-control-sm" id="order-qty-${p.id}" style="width: 80px;" ${p.availableQuantity === 0 ? 'disabled' : ''}>
+                    </td>
+                </tr>
+            `).join('');
+    }
 
+    async function createFarmer(event) {
+        event.preventDefault();
+        const form = document.getElementById('farmer-form');
+        const payload = {
+            name: document.getElementById('farmerName').value,
+            farmName: document.getElementById('farmName').value,
+            contactEmail: document.getElementById('farmerEmail').value
+        };
+        await sendJson('/farmers', payload);
+        form.reset();
+        await loadFarmers();
+        populateProductFarmerDropdown();
+    }
+
+    async function createCustomer(event) {
+        event.preventDefault();
+        const form = document.getElementById('customer-form');
+        const payload = {
+            name: document.getElementById('customerName').value,
+            email: document.getElementById('customerEmail').value,
+            phoneNumber: document.getElementById('customerPhone').value
+        };
+        await sendJson('/customers', payload);
+        form.reset();
+        await loadCustomers();
+        populateOrderCustomerDropdown();
+    }
+
+    async function createProduct(event) {
+        event.preventDefault();
+        const form = document.getElementById('product-form');
+        const payload = {
+            name: document.getElementById('productName').value,
+            description: document.getElementById('productDescription').value,
+            price: parseFloat(document.getElementById('productPrice').value),
+            availableQuantity: parseInt(document.getElementById('productQuantity').value, 10),
+            farmerId: parseInt(document.getElementById('productFarmer').value, 10)
+        };
+        await sendJson('/products', payload);
+        form.reset();
+        await loadProducts();
+    }
+
+    async function submitOrder(event) {
+        event.preventDefault();
+        const feedbackBox = document.getElementById('order-form-feedback');
+        feedbackBox.innerText = '';
+
+        const selectedCustomerVal = document.getElementById('orderCustomer').value;
+        const selectedCustomerId = selectedCustomerVal ? parseInt(selectedCustomerVal, 10) : NaN;
+        if (isNaN(selectedCustomerId)) {
+            feedbackBox.innerText = 'Please select a customer before placing an order.';
+            return;
+        }
+
+        const items = allProducts.map(p => {
+            const el = document.getElementById(`order-qty-${p.id}`);
+            const qty = el ? parseInt(el.value, 10) : 0;
+            return { productId: p.id, quantity: qty || 0 };
+        }).filter(item => item.quantity > 0);
+
+        if (items.length === 0) {
+            feedbackBox.innerText = 'Select at least one product quantity to place an order.';
+            return;
+        }
+
+        const payload = { customerId: selectedCustomerId, orderProducts: items };
         try {
             const response = await fetch(`${API_BASE_URL}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    customerId: parseInt(customerId),
-                    productIds: [parseInt(productId)]
-                })
+                body: JSON.stringify(payload)
             });
-
-            const data = await response.json();
-            statusBox.classList.remove('d-none', 'alert-success', 'alert-danger');
+            const result = await response.json();
+            const successBox = document.getElementById('order-success');
 
             if (response.ok) {
-                statusBox.classList.add('alert-success');
-                statusBox.innerHTML = `<strong>Success!</strong> Order #${data.id} placed.<br>Status: ${data.status}`;
-                loadProducts(); // Refresh inventory numbers!
+                successBox.classList.remove('d-none');
+                successBox.innerHTML = `Order <strong>#${result.id}</strong> created successfully with status <strong>${result.status}</strong>. Total: $${(result.totalAmount||0).toFixed(2)}`;
+                document.getElementById('order-form').reset();
+                await loadProducts();
+                await loadOrders();
             } else {
-                statusBox.classList.add('alert-danger');
-                statusBox.innerText = `Error: ${data.error || JSON.stringify(data)}`;
+                successBox.classList.add('d-none');
+                feedbackBox.innerText = result.error || JSON.stringify(result);
             }
-        } catch (error) {
-            statusBox.classList.remove('d-none');
-            statusBox.classList.add('alert-danger');
-            statusBox.innerText = "Network error. Could not connect to the server.";
+        } catch (err) {
+            feedbackBox.innerText = 'Network error: ' + err.message;
         }
     }
 
-    // --- 3. TRACK ORDER ---
-    async function trackOrder() {
-        const orderId = document.getElementById('trackOrderId').value;
-        const resultBox = document.getElementById('track-result');
-
-        if(!orderId) return;
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
-            const data = await response.json();
-
-            resultBox.classList.remove('d-none');
-
-            if (response.ok) {
-                // Formatting the date nicely
-                const orderDate = new Date(data.orderDate).toLocaleString();
-                resultBox.innerHTML = `
-                    <strong>Status:</strong> <span class="badge bg-info text-dark">${data.status}</span><br>
-                    <strong>Date:</strong> ${orderDate}<br>
-                    <strong>Customer:</strong> ${data.customer.name}<br>
-                    <strong>Items:</strong> ${data.products.length} product(s)
-                `;
-            } else {
-                resultBox.innerHTML = `<span class="text-danger">Order not found.</span>`;
-            }
-        } catch (error) {
-            resultBox.classList.remove('d-none');
-            resultBox.innerHTML = `<span class="text-danger">Connection error.</span>`;
+    async function changeStatus(orderId, status) {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status?status=${status}`, {
+            method: 'PUT'
+        });
+        if (response.ok) {
+            await loadOrders();
+            loadProducts();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Could not update order status.');
         }
     }
 
-    // Initialize page
-    window.onload = loadProducts;
+    async function sendJson(path, payload) {
+        const response = await fetch(`${API_BASE_URL}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || JSON.stringify(error));
+        }
+        return response.json();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAllData().catch(error => console.error('Initialization failed:', error));
+    });
 </script>
-
 </body>
 </html>
+
+
+

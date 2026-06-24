@@ -1,6 +1,6 @@
 # 🌾 Farmers' Market Pre-Order System
 
-A full-stack Spring Boot REST API that digitises the pre-ordering workflow for farmers' markets — letting customers browse fresh produce, place multi-item orders, and track order status in real time. Built to mirror the kind of in-house retail systems used by companies like Belc.
+A full-stack Spring Boot REST API that digitises the pre-ordering workflow for farmers' markets — letting customers browse fresh produce, place multi-item orders, and track order status in real time. Built to mirror the kind of in-house retail systems.
 
 
 ---
